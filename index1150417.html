@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新北市蘆洲區忠義國民小學員工健檢補助查詢系統</title>
+    <style>
+        :root {
+            --bg-light: #fdfdfd;
+            --main-blue: #005bac;
+            --accent-yellow: #ffec00;
+            --gradient-header: linear-gradient(to right, #fff100 0%, #ffbb00 45%, #00a0e9 100%);
+            --font-family: "標楷體", "DFKai-SB", "Microsoft JhengHei", sans-serif;
+        }
+
+        body {
+            background-color: #e8f4fa;
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .window-frame {
+            background-color: white;
+            max-width: 950px;
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border: 2px solid #ccc;
+        }
+
+        .page-header {
+            background: var(--gradient-header);
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid var(--main-blue);
+        }
+
+        .school-logo-mock {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--main-blue);
+            margin-right: 20px;
+            border: 2px solid #005bac;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .title-text {
+            color: var(--main-blue);
+            font-size: 32px;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1.3;
+            text-shadow: 
+                -2px -2px 0 #fff,  
+                 2px -2px 0 #fff,
+                -2px  2px 0 #fff,
+                 2px  2px 0 #fff;
+            letter-spacing: 2px;
+        }
+
+        .main-content {
+            padding: 35px;
+            background-color: #f9fcff;
+        }
+
+        .instruction {
+            font-size: 20px;
+            color: #444;
+            margin-bottom: 25px;
+            font-weight: bold;
+            border-left: 6px solid #ffbb00;
+            padding-left: 15px;
+        }
+
+        .select-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) { .select-group { grid-template-columns: 1fr; } }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 18px;
+            color: var(--main-blue);
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 17px;
+            font-family: var(--font-family);
+            background-color: #fff;
+            color: #333;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            border-color: var(--main-blue);
+        }
+
+        #result-display {
+            display: none;
+            background-color: #fff;
+            border: 2px solid #00a0e9;
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            margin-bottom: 20px;
+            font-size: 19px;
+            align-items: flex-start;
+        }
+
+        .res-label {
+            color: #fff;
+            background-color: var(--main-blue);
+            padding: 4px 12px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .res-value {
+            color: #222;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+
+        .highlight-money {
+            color: #d93025;
+            font-size: 24px;
+            font-weight: 900;
+            background: #fff8f8;
+            padding: 2px 8px;
+            border: 1px solid #ffcfcf;
+        }
+
+        .note-text {
+            color: #666;
+            font-size: 16px;
+            font-style: italic;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 60px;
+            color: rgba(0, 160, 233, 0.05);
+            font-weight: bold;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="window-frame">
+    <div class="page-header">
+        <div class="school-logo-mock">忠義</div>
+        <h1 class="title-text">新北市蘆洲區忠義國民小學<br>員工健檢補助查詢系統</h1>
+    </div>
+
+    <div class="main-content">
+        <div class="instruction">請依序完成身分與年齡類別選取：</div>
+
+        <div class="select-group">
+            <div>
+                <label>【步驟一】選擇職務身分</label>
+                <select id="roleInput" onchange="filterAgeOptions()">
+                    <option value="">-- 請點選 --</option>
+                </select>
+            </div>
+            <div>
+                <label>【步驟二】選擇年齡基準 (受檢前一年底計)</label>
+                <select id="ageInput" disabled onchange="displayDetails()">
+                    <option value="">-- 請先選取職務 --</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="result-display">
+            <div class="watermark">忠義國小</div>
+            <div class="result-item">
+                <span class="res-label">最高補助額度</span>
+                <span id="v-money" class="res-value highlight-money"></span>
+            </div>
+            <div class="result-item">
+                <span class="res-label">建議檢查頻率</span>
+                <span id="v-freq" class="res-value"></span>
+            </div>
+            <div class="result-item">
+                <span class="res-label">核給公假天數</span>
+                <span id="v-holiday" class="res-value"></span>
+            </div>
+            <div class="result-item">
+                <span class="res-label">適用法規分類</span>
+                <span id="v-law" class="res-value" style="font-size:16px;"></span>
+            </div>
+            <div id="v-note" class="note-text"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 原始資料數據
+const healthCheckDB = [
+    {"r":"校長","a":"50歲以上（未滿65歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第一類人員","m":"16,000元 (每年) 或 32,000元 (每2年)","f":"每年 1 次 或 每 2 年 1 次","h":"公假 1 天 (選擇 3.2 萬者最高 2 天)","n":""},
+    {"r":"校長","a":"40歲以上（未滿50歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第一類人員","m":"16,000元 (每年) 或 32,000元 (每2年)","f":"每年 1 次 或 每 2 年 1 次","h":"公假 1 天 (選擇 3.2 萬者最高 2 天)","n":""},
+    {"r":"校長","a":"未滿40歲（一般人員）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第一類人員","m":"16,000元 (每年) 或 32,000元 (每2年)","f":"每年 1 次 或 每 2 年 1 次","h":"公假 1 天 (選擇 3.2 萬者最高 2 天)","n":""},
+    {"r":"校長","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第一類人員","m":"16,000元 (每年) 或 32,000元 (每2年)","f":"每年 1 次 或 每 2 年 1 次","h":"公假 1 天 (選擇 3.2 萬者最高 2 天)","n":""},
+    {"r":"編制內教職員工（教師、行政人員）","a":"50歲以上（未滿65歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第三類人員","m":"4,000 元 (每年) 或 8,000 元 (每2年)","f":"每年 1 次 或 每 2 年 1 次","h":"公假 1 天 (課務自理)","n":""},
+    {"r":"編制內教職員工（教師、行政人員）","a":"40歲以上（未滿50歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第三類人員","m":"4,500 元","f":"每 2 年 1 次","h":"公假 1 天 (課務自理)","n":""},
+    {"r":"編制內教職員工（教師、行政人員）","a":"未滿40歲（一般人員）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天 (課務自理)","n":""},
+    {"r":"編制內教職員工（教師、行政人員）","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第三類人員危安工作特殊規定","m":"3,500 元","f":"每 3 年 1 次","h":"公假 1 天 (課務自理)","n":""},
+    {"r":"代理教師（現職服務滿6個月以上）","a":"50歲以上（未滿65歲）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 3 年 1 次","h":"公假 1 天 (課務自理)","n":"代理教師須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"代理教師（現職服務滿6個月以上）","a":"40歲以上（未滿50歲）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 3 年 1 次","h":"公假 1 天 (課務自理)","n":"代理教師須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"代理教師（現職服務滿6個月以上）","a":"未滿40歲（一般人員）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天 (課務自理)","n":"代理教師須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"代理教師（現職服務滿6個月以上）","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天 (課務自理)","n":"代理教師須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"約聘僱人員","a":"50歲以上（未滿65歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員","m":"4,500 元","f":"每 2 年 1 次","h":"公假 1 天","n":"需連續服務滿 1 年(前一年度1月31日（含）前到職至同年12月31日均於同一現職機關學校且未中斷者)，且身分不含依中央法規或補助款及其他經費進用之人員。"},
+    {"r":"約聘僱人員","a":"40歲以上（未滿50歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員","m":"4,500 元","f":"每 2 年 1 次","h":"公假 1 天","n":"需連續服務滿 1 年(前一年度1月31日（含）前到職至同年12月31日均於同一現職機關學校且未中斷者)，且身分不含依中央法規或補助款及其他經費進用之人員。"},
+    {"r":"約聘僱人員","a":"未滿40歲（一般人員）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天","n":""},
+    {"r":"約聘僱人員","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員危安工作特殊規定","m":"3,500 元","f":"每 3 年 1 次","h":"公假 1 天","n":"需連續服務滿 1 年(前一年度1月31日（含）前到職至同年12月31日均於同一現職機關學校且未中斷者)，且身分不含依中央法規或補助款及其他經費進用之人員。"},
+    {"r":"工友／技工／駕駛","a":"50歲以上（未滿65歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員","m":"4,500 元","f":"每 2 年 1 次","h":"公假 1 天","n":""},
+    {"r":"工友／技工／駕駛","a":"40歲以上（未滿50歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員","m":"4,500 元","f":"每 2 年 1 次","h":"公假 1 天","n":""},
+    {"r":"工友／技工／駕駛","a":"未滿40歲（一般人員）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天","n":""},
+    {"r":"工友／技工／駕駛","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員危安工作特殊規定","m":"3,500 元","f":"每 3 年 1 次","h":"公假 1 天","n":""},
+    {"r":"臨時人員","a":"50歲以上（未滿65歲）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 3 年 1 次","h":"公假 1 天","n":""},
+    {"r":"臨時人員","a":"40歲以上（未滿50歲）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 3 年 1 次","h":"公假 1 天","n":""},
+    {"r":"臨時人員","a":"未滿40歲（一般人員）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天","n":""},
+    {"r":"臨時人員","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天","n":""},
+    {"r":"依中央法規或補助及其他經費進用之人員","a":"50歲以上（未滿65歲）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 3 年 1 次","h":"公假 1 天","n":"須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"依中央法規或補助及其他經費進用之人員","a":"40歲以上（未滿50歲）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 3 年 1 次","h":"公假 1 天","n":"須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"依中央法規或補助及其他經費進用之人員","a":"未滿40歲（一般人員）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天","n":"須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"依中央法規或補助及其他經費進用之人員","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天","n":"須於現職學校任職服務滿 6 個月以上。"},
+    {"r":"非編制人員","a":"50歲以上（未滿65歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員","m":"4,500 元","f":"每 2 年 1 次","h":"公假 1 天","n":"需連續服務滿 1 年(前一年度1月31日（含）前到職至同年12月31日均於同一現職機關學校且未中斷者)，且身分不含依中央法規或補助款及其他經費進用之人員。"},
+    {"r":"非編制人員","a":"40歲以上（未滿50歲）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員","m":"4,500 元","f":"每 2 年 1 次","h":"公假 1 天","n":"需連續服務滿 1 年(前一年度1月31日（含）前到職至同年12月31日均於同一現職機關學校且未中斷者)，且身分不含依中央法規或補助款及其他經費進用之人員。"},
+    {"r":"非編制人員","a":"未滿40歲（一般人員）","l":"新北市所屬公立各級學校員工適用職業安全衛生法健康檢查補助規定","m":"1,200 元","f":"每 5 年 1 次","h":"公假 1 天","n":""},
+    {"r":"非編制人員","a":"未滿40歲（從事危安／輪班工作者）","l":"新北市政府及所屬機關學校員工健康檢查補助規定之第四類人員危安工作特殊規定","m":"3,500 元","f":"每 3 年 1 次","h":"公假 1 天","n":"需連續服務滿 1 年(前一年度1月31日（含）前到職至同年12月31日均於同一現職機關學校且未中斷者)，且身分不含依中央法規或補助款及其他經費進用之人員。"}
+];
+
+const roleEl = document.getElementById('roleInput');
+const ageEl = document.getElementById('ageInput');
+const resDiv = document.getElementById('result-display');
+
+// 【修改處】自定義排序清單
+const customOrder = [
+    "校長",
+    "編制內教職員工（教師、行政人員）",
+    "工友／技工／駕駛",
+    "約聘僱人員",
+    "非編制人員",
+    "代理教師（現職服務滿6個月以上）",
+    "臨時人員",
+    "依中央法規或補助及其他經費進用之人員"
+];
+
+// 初始化職稱下拉（使用自定義排序）
+customOrder.forEach(r => {
+    let o = new Option(r, r);
+    roleEl.add(o);
+});
+
+function filterAgeOptions() {
+    ageEl.innerHTML = '<option value="">-- 請選擇年齡基準 (受檢前一年底計) --</option>';
+    resDiv.style.display = 'none';
+    
+    if(!roleEl.value) {
+        ageEl.disabled = true;
+        return;
+    }
+    
+    const matched = healthCheckDB.filter(i => i.r === roleEl.value);
+    matched.forEach(i => {
+        let o = new Option(i.a, i.a);
+        ageEl.add(o);
+    });
+    ageEl.disabled = false;
+}
+
+function displayDetails() {
+    if(!ageEl.value) {
+        resDiv.style.display = 'none';
+        return;
+    }
+    
+    const data = healthCheckDB.find(i => i.r === roleEl.value && i.a === ageEl.value);
+    document.getElementById('v-money').innerText = data.m;
+    document.getElementById('v-freq').innerText = data.f;
+    document.getElementById('v-holiday').innerText = data.h;
+    document.getElementById('v-law').innerText = data.l;
+    document.getElementById('v-note').innerText = data.n ? "※ 備註：" + data.n : "";
+    resDiv.style.display = 'block';
+}
+</script>
+
+</body>
+</html>
